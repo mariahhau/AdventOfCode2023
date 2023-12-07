@@ -47,20 +47,6 @@ public class ConversionMap {
         br.close();
     }
 
-    public void printMap() {
-        map.forEach((key, value) -> System.out.println(key + " : " + value));
-    }
-
-    public String[] getSeeds() {
-        return seeds;
-    }
-
-    public void printSeeds() {
-        for (String seed : seeds) {
-            System.out.println(seed);
-        }
-    }
-
     public long findMinLocation() {
         long minLocation = Integer.MAX_VALUE;
         if (seeds != null) {
@@ -75,7 +61,6 @@ public class ConversionMap {
             }
         }
         return minLocation;
-
     }
 
     private long map(int keyIndex, final long min, final long max) {
@@ -86,9 +71,9 @@ public class ConversionMap {
         boolean foundMin = false;
         boolean foundMax = false;
 
-        if (keyIndex == map.keySet().toArray().length - 1) {
-            return humToLocation(min, max);
-        }
+        // if (keyIndex == map.keySet().toArray().length - 1) {
+        // return humToLocation(min, max);
+        // }
 
         String key = map.keySet().toArray()[keyIndex].toString();
         List<MapEntry> sourceToDest = map.get(key);
@@ -100,11 +85,21 @@ public class ConversionMap {
                 if (mapEntry.isInRange(newMin)) {
                     long temp;
                     if (mapEntry.getSRangeEnd() >= newMax) {
-                        temp = map(keyIndex + 1, mapEntry.map(newMin), mapEntry.map(newMax));
+                        if (key.equals("humidity-to-location")) {
+                            temp = mapEntry.map(newMin);
+                        } else {
+                            temp = map(keyIndex + 1, mapEntry.map(newMin), mapEntry.map(newMax));
+                        }
+
                         newMax = -1;
                         newMin = -1;
                     } else {
-                        temp = map(keyIndex + 1, mapEntry.map(newMin), mapEntry.map(mapEntry.getSRangeEnd()));
+                        if (key.equals("humidity-to-location")) {
+                            temp = mapEntry.map(newMin);
+                        } else {
+                            temp = map(keyIndex + 1, mapEntry.map(newMin), mapEntry.map(mapEntry.getSRangeEnd()));
+                        }
+
                         newMin = mapEntry.getSRangeEnd() + 1;
                     }
 
@@ -122,14 +117,18 @@ public class ConversionMap {
             // if didn't find MapEntry for min, look for max
             if (!foundMin) {
                 for (MapEntry mapEntry : sourceToDest) {
+                    long temp;
                     if (mapEntry.isInRange(newMax)) {
-                        long temp = map(keyIndex + 1, mapEntry.map(mapEntry.getSRangeStart()), mapEntry.map(newMax));
+                        if (key.equals("humidity-to-location")) {
+                            temp = mapEntry.map(mapEntry.getSRangeStart());
+                        } else {
+                            temp = map(keyIndex + 1, mapEntry.map(mapEntry.getSRangeStart()), mapEntry.map(newMax));
+
+                        }
 
                         newMax = mapEntry.getSRangeStart() - 1;
                         if (temp < result) {
                             result = temp;
-                            // newMax = -1;
-                            // newMin = -1;
                         }
                         foundMax = true;
                         break;
@@ -140,7 +139,13 @@ public class ConversionMap {
             }
             if (!foundMin && !foundMax) {
                 // assume there are no gaps in data
-                long temp = map(keyIndex + 1, newMin, newMax);
+                long temp;
+                if (key.equals("humidity-to-location")) {
+                    temp = newMin;
+                } else {
+                    temp = map(keyIndex + 1, newMin, newMax);
+                }
+
                 if (temp < result) {
                     result = temp;
                 }
@@ -154,66 +159,17 @@ public class ConversionMap {
 
     }
 
-    private long humToLocation(long min, long max) {
-        List<MapEntry> humToLoc = map.get("humidity-to-location");
-        long result = Integer.MAX_VALUE;
-        long newMin = min;
-        long newMax = max;
+    public void printMap() {
+        map.forEach((key, value) -> System.out.println(key + " : " + value));
+    }
 
-        boolean foundMin = false;
-        boolean foundMax = false;
-        while (newMin != -1 && newMax != -1) {
+    public String[] getSeeds() {
+        return seeds;
+    }
 
-            for (MapEntry mapEntry : humToLoc) {
-                if (mapEntry.isInRange(newMin)) {
-                    long temp;
-                    temp = mapEntry.map(newMin);
-
-                    if (temp < result) {
-                        result = temp;
-                    }
-
-                    newMin = mapEntry.getSRangeEnd() + 1;
-                    if (mapEntry.getSRangeEnd() >= newMax) {
-                        newMax = -1;
-                        newMin = -1;
-                    }
-                    foundMin = true;
-
-                    break;
-                } else {
-                    foundMin = false;
-                }
-            }
-
-            if (!foundMin) {
-                for (MapEntry mapEntry : humToLoc) {
-                    if (mapEntry.isInRange(newMax)) {
-                        long temp = mapEntry.map(mapEntry.getSRangeStart());
-                        if (temp > result) {
-                            result = temp;
-                            newMax = -1;
-                        }
-                        newMax = mapEntry.getSRangeStart() - 1;
-                        foundMax = true;
-                        break;
-                    } else {
-                        foundMax = false;
-                    }
-                }
-            }
-            if (!foundMin && !foundMax) {
-                long temp = newMin;
-                if (temp < result) {
-                    result = temp;
-                }
-                newMax = -1;
-                newMin = -1;
-
-            }
+    public void printSeeds() {
+        for (String seed : seeds) {
+            System.out.println(seed);
         }
-
-        return result;
-
     }
 }
