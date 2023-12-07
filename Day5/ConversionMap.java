@@ -105,17 +105,13 @@ public class ConversionMap {
                         newMin = -1;
                     } else {
                         temp = map(keyIndex + 1, mapEntry.map(newMin), mapEntry.map(mapEntry.getSRangeEnd()));
+                        newMin = mapEntry.getSRangeEnd() + 1;
                     }
 
                     if (temp < result) {
                         result = temp;
                     }
 
-                    newMin = mapEntry.getSRangeEnd() + 1;
-                    if (mapEntry.getSRangeEnd() >= newMax) {
-                        newMax = -1;
-                        newMin = -1;
-                    }
                     foundMin = true;
 
                     break;
@@ -132,8 +128,8 @@ public class ConversionMap {
                         newMax = mapEntry.getSRangeStart() - 1;
                         if (temp < result) {
                             result = temp;
-                            newMax = -1;
-                            newMin = -1;
+                            // newMax = -1;
+                            // newMin = -1;
                         }
                         foundMax = true;
                         break;
