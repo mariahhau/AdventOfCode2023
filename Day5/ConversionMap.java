@@ -71,10 +71,6 @@ public class ConversionMap {
         boolean foundMin = false;
         boolean foundMax = false;
 
-        // if (keyIndex == map.keySet().toArray().length - 1) {
-        // return humToLocation(min, max);
-        // }
-
         String key = map.keySet().toArray()[keyIndex].toString();
         List<MapEntry> sourceToDest = map.get(key);
 
