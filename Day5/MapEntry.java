@@ -44,10 +44,7 @@ public class MapEntry {
     }
 
     public String toString() {
-        return "\ndestination range start:" + dRangeStart + "\n" +
-                "source range start:" + sRangeStart + "\n" +
-                "range length:" + rangeLength + "\n";
-
+        return dRangeStart + " " + sRangeStart + " " + rangeLength + "\n";
     }
 
 }
