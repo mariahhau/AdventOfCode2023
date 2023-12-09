@@ -2,33 +2,41 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Day7Part1
+namespace Day7Part2
 {
     internal class Hand : IComparable<Hand>
     {
         string cards;
         int bid;
+        Boolean joker = true;
 
         public Hand(string cards, int bid)
         {
             this.cards = cards;
             this.bid = bid;
+           
+        }
+
+        public void toggleJoker()
+        {
+            joker = joker == true ? false : true;
         }
 
         public int GetBid() { return bid; }
         public string GetCards() { return cards; }
         public int CompareTo(Hand other)
         {
+            
             if (other == null) return -1;
 
             string otherHand = other.GetCards();
 
             if (otherHand.Length < GetCards().Length) return -1;
-
+            
             for (int i = 0; i < cards.Length; i++)
             {
-                int card = Hand.getIntValue(cards[i]);
-                int otherCard = Hand.getIntValue(other.cards[i]);
+                int card = getIntValue(cards[i]); // Hand.getIntValue(cards[i]);
+                int otherCard = other.getIntValue(other.cards[i]);
 
                 if (card < otherCard) return 1;
                 else if (card > otherCard) return -1;
@@ -40,8 +48,11 @@ namespace Day7Part1
         //Returns the hand: 0 == five of a kind ... 6 = high card
         public int GetHand()
         {
-            Dictionary<char, int> labels = new Dictionary<char, int>();
+            if (cards == null) return -1;
 
+            List<int> jokers = new List<int>();
+            Dictionary<char, int> labels = new Dictionary<char, int>();
+            int i = 0;
             foreach (char card in cards)
             {
                 if (labels.ContainsKey(card))
@@ -52,11 +63,55 @@ namespace Day7Part1
                 {
                     labels.Add(card, 1);
                 }
+                if (card == 'J')
+                {
+                    jokers.Add(i);
+                }
+                i++;
 
             }
             
             int hand = -1;
+            int maxValue = labels.Values.Max();
+            char[] highestKeys= labels.Where(x => x.Value == maxValue).Select(x => x.Key).ToArray();
+            char highestKey =  highestKeys[0];
+            
+            if (joker && highestKeys.Contains('J'))
+            {
+                if (highestKeys.Length > 1)
+                {
+                    for (int j = 0; j < highestKeys.Length; j++) {
+                        if (highestKeys[j] != 'J')
+                        {
+                            highestKey = highestKeys[j];
+                            break;
+                        }
+                    }
+                    
+                } else
+                {
+                    foreach (char card in cards)
+                    {
+                        if (card != 'J')
+                        {
+                            highestKey = card;
+                            break;
+                        }
+                    }
+                }
 
+            }
+            
+            if (joker && highestKey != 'J')
+            {
+                labels.Remove('J');
+                foreach (int joker in jokers)
+                {
+                    labels[highestKey]++;
+                }
+
+            }
+            
             switch (labels.Count)
             {
 
@@ -105,12 +160,12 @@ namespace Day7Part1
                 default:
                     break;
             }
-
             return hand;
 
         }
 
-        public static int getIntValue(char card)
+
+        public int getIntValue(char card)
         {
             if (Char.IsNumber(card))
             {
@@ -124,16 +179,21 @@ namespace Day7Part1
                     return 13;
                 case 'Q':
                     return 12;
-                case 'J':
-                    return 11;
                 case 'T':
                     return 10;
+                case 'J':
+                    if (joker)
+                    {
+                        return 1;
+                    }
+                    else
+                    {
+                        return 11;
+                    }
                 default:
                     return 0;
 
             }
-
-
 
         }
 

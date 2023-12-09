@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Day7Part1
+namespace Day7Part2
 {
     internal class Program
     {   
@@ -23,6 +23,7 @@ namespace Day7Part1
                 string[] parts = line.Split(' ');
                 Hand newHand = new Hand(parts[0], int.Parse(parts[1]));
                 int index = newHand.GetHand();
+                
                 
                 if (hands[index] == null)
                 {
